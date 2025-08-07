@@ -1,72 +1,231 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Muhammad Zar | Portfolio</title>
-  <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammad Zar - Software Engineer Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .section-title {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        .project-card, .skill-card {
+            background: linear-gradient(145deg, #1a1a1a, #121212);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover, .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.2);
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .btn-contact {
+            background: #00ff88;
+            color: #000;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .btn-contact:hover {
+            background: #00cc70;
+        }
+    </style>
 </head>
 <body>
-  <header id="hero">
-    <div class="container">
-      <h1>Muhammad Zar</h1>
-      <p>Software Engineer | AI Enthusiast | Team Leader</p></br>
-      <a href="assets/your-cv.pdf" class="btn" target="_blank">Download CV</a>
-    </div>
-  </header>
+    <!-- Navigation -->
+    <nav class="navbar fixed top-0 w-full z-50 py-4">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <h1 class="text-2xl font-bold">Muhammad Zar</h1>
+            <div class="space-x-6">
+                <a href="#home" class="hover:text-[#00ff88]">Home</a>
+                <a href="#about" class="hover:text-[#00ff88]">About</a>
+                <a href="#experience" class="hover:text-[#00ff88]">Experience</a>
+                <a href="#skills" class="hover:text-[#00ff88]">Skills</a>
+                <a href="#projects" class="hover:text-[#00ff88]">Projects</a>
+                <a href="#contact" class="hover:text-[#00ff88]">Contact</a>
+            </div>
+        </div>
+    </nav>
 
-  <nav>
-    <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#education">Education</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
-  <main>
-    <section id="about">
-      <h2>About Me</h2>
-      <p>I am a passionate software engineer with 5+ years of experience building scalable applications and leading development teams. Currently focused on AI & machine learning to drive digital transformation across industries.</p>
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center">
+        <div class="container mx-auto text-center px-6">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4">Muhammad Zar</h1>
+            <p class="text-xl md:text-2xl mb-6">Software Engineer | .NET Developer | Tech Lead</p>
+            <a href="#contact" class="btn-contact py-2 px-6 rounded-full">Get in Touch</a>
+        </div>
     </section>
 
-    <section id="projects">
-      <h2>Projects</h2>
-      <div class="card-grid">
-        <div class="card"><h3>Smart ERP HR</h3><p>Full HR solution using .NET Core and SQL Server.</p></div>
-        <div class="card"><h3>Pop Deal Loyalty</h3><p>Rewards system with HyperPay integration.</p></div>
-        <div class="card"><h3>EPOS System</h3><p>Multi-gateway ordering and payment processing.</p></div>
-      </div>
+    <!-- About Section -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-4xl font-bold mb-10 text-center">About Me</h2>
+            <p class="text-lg leading-relaxed max-w-3xl mx-auto">
+                Dynamic software engineering graduate with a passion for crafting innovative solutions. Proficient in C#, SQL, and .NET technology, with hands-on experience in developing impactful applications. Adept at collaborating with teams to deliver projects on time and drive advancements in the software engineering field.
+            </p>
+        </div>
     </section>
 
-    <section id="skills">
-      <h2>Skills</h2>
-      <ul class="skills">
-        <li>C#</li><li>SQL</li><li>Python</li><li>JavaScript</li><li>AI/ML</li><li>.NET Core</li><li>Azure</li>
-      </ul>
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-4xl font-bold mb-10 text-center">Work Experience</h2>
+            <div class="space-y-8">
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">.Net Developer & Tech Lead</h3>
+                    <p class="text-gray-400">Smart Software Systems and Solutions, Abu Dhabi, UAE | 2023-2025</p>
+                    <ul class="list-disc list-inside mt-4 space-y-2">
+                        <li>Designed and developed software solutions using .NET framework.</li>
+                        <li>Collaborated with UI/UX designers for responsive interfaces.</li>
+                        <li>Developed database schemas using Entity Framework and optimized performance.</li>
+                        <li>Led code reviews and ensured adherence to best practices.</li>
+                    </ul>
+                </div>
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Full Stack Developer and Team Lead</h3>
+                    <p class="text-gray-400">Samar Sol, Cambridge, UK | 2021-2023</p>
+                    <ul class="list-disc list-inside mt-4 space-y-2">
+                        <li>Developed web applications using C#, ASP.NET, and MVC.</li>
+                        <li>Designed scalable application architectures.</li>
+                        <li>Deployed applications on Azure and maintained Microsoft SQL databases.</li>
+                        <li>Provided technical support and improved system performance.</li>
+                    </ul>
+                </div>
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Digital Marketing Manager</h3>
+                    <p class="text-gray-400">Dev Strings, Faisalabad, Pakistan | 2020-2021</p>
+                    <ul class="list-disc list-inside mt-4 space-y-2">
+                        <li>Developed digital marketing strategies across social media, PPC, and SEO.</li>
+                        <li>Increased revenue by 30% through optimized ad campaigns.</li>
+                        <li>Grew social media following by 50% in six months.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <section id="experience">
-      <h2>Experience</h2>
-      <p><strong>.NET Tech Lead – Smart Software Systems</strong><br/>Led team to modernize HR systems and improve performance by 45%.</p>
-      <p><strong>Full Stack Developer – Samar Sol (UK)</strong><br/>Built scalable apps using ASP.NET, Azure, and mobile platforms.</p>
+    <!-- Skills Section -->
+    <section id="skills" class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-4xl font-bold mb-10 text-center">Skills</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="skill-card p-4 rounded-lg text-center">C#</div>
+                <div class="skill-card p-4 rounded-lg text-center">.NET Framework</div>
+                <div class="skill-card p-4 rounded-lg text-center">SQL</div>
+                <div class="skill-card p-4 rounded-lg text-center">ASP.NET MVC</div>
+                <div class="skill-card p-4 rounded-lg text-center">Entity Framework</div>
+                <div class="skill-card p-4 rounded-lg text-center">Git</div>
+                <div class="skill-card p-4 rounded-lg text-center">Azure</div>
+                <div class="skill-card p-4 rounded-lg text-center">Jira</div>
+            </div>
+        </div>
     </section>
 
-    <section id="education">
-      <h2>Education</h2>
-      <p><strong>BS Software Engineering</strong><br/>Riphah International University – Gold Medalist</p>
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-4xl font-bold mb-10 text-center">Highlighted Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Smart ERP HR and Payroll Web Portal</h3>
+                    <p class="text-gray-400 mt-2">Developed an HR and employee management system with payroll processing, attendance tracking, and performance evaluation using MVC .NET Core and Microsoft SQL Server.</p>
+                </div>
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Endurance Race Timing System</h3>
+                    <p class="text-gray-400 mt-2">Enhanced a race timing system with real-time tracking, participant management, and automated result processing using MVC .NET Core and Microsoft SQL Server.</p>
+                </div>
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Perkss Online & EPOS Ordering System</h3>
+                    <p class="text-gray-400 mt-2">Designed an online and EPOS ordering system with a C# backend, integrated with Square, Stripe, Payment Sense, and PayPal for secure transactions.</p>
+                </div>
+                <div class="project-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold">Digital Appointment Generator Android App</h3>
+                    <p class="text-gray-400 mt-2">Developed an Android app for doctor appointment scheduling using Java, featuring a user-friendly interface for booking and tracking appointments.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>Email: muhammadzar521@gmail.com<br/>Phone: +971 54 5788 357<br/>WhatsApp: +92 322 5357521<br/><a href="https://linkedin.com/in/muhammadzar" target="_blank">LinkedIn Profile</a></p>
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="section-title text-4xl font-bold mb-10">Get in Touch</h2>
+            <p class="text-lg mb-6">Interested in collaborating or learning more about my work? Reach out!</p>
+            <p class="text-lg mb-4">Email: <a href="mailto:muhammadzar521@gmail.com" class="hover:text-[#00ff88]">muhammadzar521@gmail.com</a></p>
+            <p class="text-lg mb-4">Phone: +971 54 5788 357</p>
+            <p class="text-lg mb-4">LinkedIn: <a href="https://www.linkedin.com/in/muhammadzar" class="hover:text-[#00ff88]" target="_blank">muhammadzar</a></p></br>
+			<a href="https://www.linkedin.com/in/muhammadzar" class="btn-contact py-2 px-6 rounded-full mt-6 inline-block" target="_blank">LinkedIn</a>
+			<a href="assets/your-cv.pdf" class="btn-contact py-2 px-6 rounded-full mt-6 inline-block" target="_blank">Download CV</a>
+            <a href="https://gitlab.com/muhammadzar123" class="btn-contact py-2 px-6 rounded-full mt-6 inline-block" target="_blank">View GitHub</a>
+        </div>
     </section>
-  </main>
 
-  <footer>
-    <p>© 2025 Muhammad Zar. All rights reserved.</p>
-  </footer>
+    <!-- Footer -->
+    <footer class="py-6 bg-gray-900 text-center">
+        <p>&copy; 2025 Muhammad Zar. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
